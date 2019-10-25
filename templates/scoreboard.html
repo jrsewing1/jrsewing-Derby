@@ -1,0 +1,109 @@
+<html>
+<head>
+  <script type='application/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js'></script>
+  <script type='application/javascript'>
+    $(document).ready(function() {
+
+      websocket = '{{ scheme }}://{{ host }}:{{ port}}/ws';
+      if (window.WebSocket) {
+        ws = new WebSocket(websocket);
+      }
+      else if (window.MozWebSocket) {
+        ws = MozWebSocket(websocket);
+      }
+      else {
+        console.log('WebSocket Not Supported');
+        return;
+      }
+
+      window.onbeforeunload = function(e) {
+        ws.close(1000, '');
+
+        if(!e) e = window.event;
+        e.stopPropagation();
+        e.preventDefault();
+      };
+      ws.onmessage = function (evt) {
+         try{
+           var msg = JSON.parse(evt.data);
+           if ($('#heat').text == '0') {
+                 window.location.reload(1); }
+           $('#' + msg.element).text(msg.val);
+         } finally {
+           console.log('test: ' + evt.data + '\n');
+         }
+      };
+      ws.onclose = function(evt) {
+         console.log('Connection closed by server: ' + evt.code + ' \"' + evt.reason + '\"\n');
+         ws = null;
+         while(! ws) {
+             $('#category').text('Reconnecting...');
+             if (window.WebSocket) {
+                 ws = new WebSocket(websocket);
+             }
+             else if (window.MozWebSocket) {
+                 ws = MozWebSocket(websocket);
+             }
+             else {
+                console.log('WebSocket Not Supported');
+                return;
+             }
+         }
+         setTimeout(function () {
+                 window.location.reload(1);
+         }, 5000);  // After 5 secs
+      };
+    });
+  </script>
+  <style>
+#div { text-overflow: clip; }
+.left { float:left; }
+.right { float:right; }
+.flex { flex:1; }
+.border { border:1px solid black; }
+#header { font-size:2em; }
+#lanes { font-size:4em;
+         clear:both;
+         width:100%;}
+body {padding:2em;}
+  </style>
+</head>
+<body>
+<div id="header">
+    <div class="left"><div id='category' class="right">{{ category }}</div></div>
+    <div class="right"><div class="left">Heat: </div><div id='heat' class="right">{{ heat }}</div></div>
+</div>
+<div id="lanes">
+        <div class="left">1:</div>
+        <div id='lane1name' class="left">{{ lanes[1].name }}</div>
+        <div id='lane1time' class="right">{{ lanes[1].time}}</div>
+</div>
+<div id="lanes">
+        <div class="left">2:</div>
+        <div id='lane2name' class="left">{{ lanes[2].name }}</div>
+        <div id='lane2time' class="right">{{ lanes[2].time}}</div>
+</div>
+<div id="lanes">
+        <div class="left">3:</div>
+        <div id='lane3name' class="left">{{ lanes[3].name }}</div>
+        <div id='lane3time' class="right">{{ lanes[3].time}}</div>
+</div>
+<div id="lanes">
+        <div class="left">4:</div>
+        <div id='lane4name' class="left">{{ lanes[4].name }}</div>
+        <div id='lane4time' class="right">{{ lanes[4].time}}</div>
+</div>
+<div id="lanes">
+        <div class="left">5:</div>
+        <div id='lane5name' class="left">{{ lanes[5].name }}</div>
+        <div id='lane5time' class="right">{{ lanes[5].time}}</div>
+</div>
+<div id="lanes">
+        <div class="left">6:</div>
+        <div id='lane6name' class="left">{{ lanes[6].name }}</div>
+        <div id='lane6time' class="right">{{ lanes[6].time}}</div>
+</div>
+
+<div style="clear:both;" />
+</body>
+</html>

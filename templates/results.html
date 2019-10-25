@@ -1,0 +1,56 @@
+<html lang="en">
+<head>
+    <title>OpenDerby Results</title>
+    <style>
+        h2 h3 {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    {% if selected %}
+        <a href="/results">Back to category list</a></li>
+        <h3>Heat line ups are subject to change until race starts</h3>
+        </p>
+    {% endif %}
+    <table border=1 cellspacing=0 cellpadding=10>
+    {% if not selected %}<h2>Categories</h2>{% endif %}
+    {% for category in results|groupby('category') %}
+        {% if selected %}
+            <h2 id="category">{{ (category.list|first()).category }}</h2>
+            {% for heat in category.list|groupby('id') %}
+            <tr>
+                <td colspan=4><h3 id="heat{{ heat[0] }}">Heat: {{ heat[0] }}</h3></td>
+            </tr>
+            <tr id="header">
+                <td>Lane</td><td>Car</td><td>Driver</td><td>Time</td>
+            </tr>
+                {% for lane in heat.list %}
+                <tr id="lane">
+                    <td>{{ lane.lane }}</td>
+                    <td>#{{ lane.car.id }} {{ lane.car.name }}</td>
+                    <td>{{ lane.car.driver }}</td>
+                    <td>{% if lane.time %}{{ '{0:0.2f}'.format(lane.time) }}{% else %}&nbsp;{% endif %}</td>
+                </tr>
+                {% endfor %}
+            {% endfor %}
+        {% else %}
+            <li><a href="/results/{{ (category.list|first()).category.id }}">{{ (category.list|first()).category }}</a></li>
+        {% endif %}
+    {% else %}
+        <lh>No Results available</lh>
+    {% endfor %}
+    <table>
+    {% if refresh %}
+    <script type="text/javascript">
+      document.addEventListener('DOMContentLoaded', function() {
+          var el = document.getElementById("heat{{ anchor }}");
+          el.scrollIntoView( false );
+      }, false);
+      setTimeout(function(){
+         window.location.reload(1);
+      }, 5000);
+    </script>
+    {% endif %}
+</body>
+</html>
